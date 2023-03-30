@@ -32,6 +32,7 @@
                     <div class="d-flex">
                         <button class="btn mx-1 unit-ctrl" value="DEG">DEG</button>
                         <button class="btn unit-ctrl" value="F-E">F-E</button>
+                        <button class="btn " data-bs-target="#history-modal" data-bs-toggle="modal"><i class="bi bi-clock-history fw-bolder"></i></button>
                     </div>
                     <div class="d-flex mb-1">
                         <button class="btn flex-grow-1 memory-btn" id="MC" value="MC" disabled>MC</button>
@@ -131,13 +132,35 @@
 
             <!-- Memory bottom sheet -->
             <div class="modal" id="memory-modal" tabindex="-1" aria-labelledby="memoryModal" aria-hidden="true">
-                <div class="modal-dialog" style="position:absolute;bottom:0;margin:0;left: 25%;min-width:50%;max-height: 500px;">
+                <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5">Memory stack</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-header d-flex justify-content-between">
+                            <h1 class="modal-title fs-5">Memory</h1>
+                            <div>
+                                <a href="#" class="modal-title fs-5 " id="clearMemory"><i class="bi bi-trash3-fill text-dark"></i></a>
+
+                                <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                            </div>
                         </div>
                         <div class="modal-body" id="memory-stack">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History bottom sheet -->
+            <div class="modal" id="history-modal" tabindex="-1" aria-labelledby="historyModal" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header d-flex justify-content-between">
+                            <h1 class="modal-title fs-5">History</h1>
+                            <div>
+                                <a href="#" class="modal-title fs-5 " id="removeHistory"><i class="bi bi-trash3-fill text-dark"></i></a>
+
+                                <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                            </div>
+                        </div>
+                        <div class="modal-body" id="history-stack">
                         </div>
                     </div>
                 </div>

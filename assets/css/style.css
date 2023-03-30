@@ -83,11 +83,11 @@ body {
     border: none !important;
 }
 
-.memory-modal .modal-dialog {
-    position: absolute;
-    bottom: 0;
-    margin: 0;
-    left: 25%;
-    min-width: 50%;
-    max-height: 500px;
+.modal-dialog {
+    position: absolute !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    left: 25% !important;
+    min-width: 50% !important;
+    max-height: 500px !important;
 }

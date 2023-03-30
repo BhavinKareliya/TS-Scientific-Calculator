@@ -6,10 +6,15 @@ const __EQ_DISPLAY = document.getElementById(
 let generalBtns = document.querySelectorAll(".gen-btn");
 let unitCtrlBtns = document.querySelectorAll(".unit-ctrl");
 let extraFuncsBtns = document.querySelectorAll(".extra-functions");
+let removeHistory = document.getElementById("removeHistory");
+let clearMemory = document.getElementById("clearMemory");
 let frontBtns = document.querySelectorAll(".front");
 let backBtns = document.querySelectorAll(".back");
 let memoryBtns = document.querySelectorAll(".memory-btn");
 let memoryStack = document.getElementById("memory-stack") as HTMLDivElement;
+let historyContainer = document.getElementById(
+  "history-stack"
+) as HTMLDivElement;
 let switchSidesBtn = document.querySelector(
   ".switch-sides"
 ) as HTMLButtonElement;
@@ -22,7 +27,8 @@ let isPrevNum: boolean = false,
 let braceCnt: number = 0,
   htmlContent: string = "";
 let expStack: any = [],
-  memory: any = [];
+  memory: any = [],
+  historyStack: any = [];
 let currUnit: string = "RAD";
 
 const MemorySheet: any = {
@@ -60,6 +66,20 @@ const MemorySheet: any = {
       document.getElementById("MC")!.setAttribute("disabled", true);
       document.getElementById("btm-sheet")!.setAttribute("disabled", true);
     }
+  },
+};
+
+const HistorySheet: any = {
+  appendHistory: ({ exp, res }: any): void => {
+    htmlContent = `<div class="alert alert-dark" role="alert">
+                        <h5> ${res}</h5>
+                        <p> ${exp + "="} </p>
+                    </div>`;
+    historyContainer.insertAdjacentHTML("afterbegin", htmlContent);
+  },
+  clearHistory: (): void => {
+    historyContainer.innerHTML = "";
+    historyStack = [];
   },
 };
 
@@ -164,6 +184,9 @@ const calculate = (): void => {
   __EQ_DISPLAY.value = exp + "=";
 
   res = isExp ? res.toExponential() : res.toFixed();
+
+  historyStack.push({ exp, res });
+  HistorySheet.appendHistory({ exp, res });
 
   expStack = [res];
   isPrevNum = true;
@@ -409,4 +432,15 @@ switchSidesBtn.addEventListener("click", (e) => {
     });
   }
   (e.target as HTMLButtonElement).classList.toggle("active");
+});
+
+removeHistory?.addEventListener("click", (e) => {
+  HistorySheet.clearHistory();
+});
+
+clearMemory?.addEventListener("click", (e) => {
+  sessionStorage.removeItem("Store");
+  memory = [];
+  memoryStack.innerHTML = "";
+  MemorySheet.handleBtns();
 });
