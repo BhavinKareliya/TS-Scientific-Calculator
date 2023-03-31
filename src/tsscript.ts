@@ -60,18 +60,18 @@ const MemorySheet: any = {
       document.getElementById("MC")!.removeAttribute("disabled");
       document.getElementById("btm-sheet")!.removeAttribute("disabled");
     } else {
-      document.getElementById("M+")!.setAttribute("disabled", true);
-      document.getElementById("MR")!.setAttribute("disabled", true);
-      document.getElementById("M-")!.setAttribute("disabled", true);
-      document.getElementById("MC")!.setAttribute("disabled", true);
-      document.getElementById("btm-sheet")!.setAttribute("disabled", true);
+      document.getElementById("M+")!.setAttribute("disabled", "true");
+      document.getElementById("MR")!.setAttribute("disabled", "true");
+      document.getElementById("M-")!.setAttribute("disabled", "true");
+      document.getElementById("MC")!.setAttribute("disabled", "true");
+      document.getElementById("btm-sheet")!.setAttribute("disabled", "true");
     }
   },
 };
 
 const HistorySheet: any = {
   appendHistory: ({ exp, res }: any): void => {
-    htmlContent = `<div class="alert alert-dark" role="alert">
+    htmlContent = `<div class="alert alert-success" role="alert">
                         <h5> ${res}</h5>
                         <p> ${exp + "="} </p>
                     </div>`;
@@ -95,7 +95,7 @@ if (sessionStorage.getItem("Store")) {
 }
 
 const push = (val: any): void => {
-  let prev: string | number = expStack.slice(-1)[0];
+  let prev: any = expStack.slice(-1);
   if (!isNaN(val)) {
     //append digits to previous number
     if (prev == ")") expStack.push("*");
@@ -128,23 +128,21 @@ const push = (val: any): void => {
       braceCnt++;
       if (prev == ")") expStack.push("*");
       if (isPrevNum) expStack.push("*");
+      allowOnlyNumber = true;
     }
 
     if (val == ")") {
       if (braceCnt == 0) return;
-
       if (!isPrevNum && prev != ")") return;
-
       if (isPrevNum || prev == ")") braceCnt--;
     }
-
     isPrevNum = false;
   }
   expStack.push(val);
 };
 
 const pop = (): void => {
-  let prev: string | number = expStack.slice(-1);
+  let prev: any = expStack.slice(-1);
 
   if (expStack.length == 0) return;
 
@@ -183,7 +181,8 @@ const calculate = (): void => {
   __DISPLAY.value = res.toString();
   __EQ_DISPLAY.value = exp + "=";
 
-  res = isExp ? res.toExponential() : res.toFixed();
+  isFloat = checkFloat(res);
+  res = isExp ? res.toExponential() : isFloat ? parseFloat(res) : res;
 
   historyStack.push({ exp, res });
   HistorySheet.appendHistory({ exp, res });
@@ -309,6 +308,7 @@ extraFuncsBtns.forEach((btn): void => {
         break;
       case "RAND":
         expStack = [];
+        isFloat = true;
         res = Math.random();
     }
     expStack.push(res);
@@ -320,13 +320,15 @@ extraFuncsBtns.forEach((btn): void => {
 generalBtns.forEach((btn): void => {
   btn.addEventListener("click", (e): void => {
     let val: any = (e.target as HTMLButtonElement).value;
+    let prev: any = expStack.slice(-1);
 
     if (
       allowOnlyNumber &&
       isNaN(val) &&
       val != "CLS" &&
       val != "PI" &&
-      val != "EXP"
+      val != "EXP" &&
+      prev != "("
     )
       return;
 
@@ -346,12 +348,23 @@ generalBtns.forEach((btn): void => {
           pop();
           break;
         case "ABS":
-          if (isPrevNum) expStack.push(Math.abs(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.abs(current));
+          }
           break;
         case "INVERSE":
-          if (isPrevNum) expStack.push(1 / expStack.pop());
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(1 / current);
+          }
           break;
         case "EXP":
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            storeExp(current);
+          }
+          break;
         case "EULER":
           resetAll();
           expStack.push(Math.E);
@@ -391,10 +404,14 @@ generalBtns.forEach((btn): void => {
           if (isPrevNum) expStack.push(Math.log10(expStack.pop()));
           break;
         case "LN":
-          if (isPrevNum) expStack.push(Math.log10(expStack.pop()));
+          if (isPrevNum) expStack.push(Math.log(expStack.pop()));
           break;
         case "NEGATE":
-          if (isPrevNum) expStack.push(-expStack.pop());
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(-current);
+            isFloat = false;
+          }
           break;
         case "=":
           if (braceCnt > 0) return;
@@ -444,3 +461,14 @@ clearMemory?.addEventListener("click", (e) => {
   memoryStack.innerHTML = "";
   MemorySheet.handleBtns();
 });
+
+function checkFloat(n: any) {
+  return Number(n) === n && n % 1 !== 0;
+}
+
+function popFloat(): number {
+  var dec: number = expStack.pop();
+  expStack.pop();
+  var round: number = expStack.pop();
+  return parseFloat(round + "." + dec);
+}
