@@ -122,12 +122,15 @@ const push = (val: any): void => {
     }
 
     //change operators if TOP is already an operator
-    if (!isPrevNum && val != "(" && prev != ")" && val != ".") expStack.pop();
+    if (!isPrevNum && prev != "(" && prev != ")" && val != ".") expStack.pop();
+
+    if (prev == "(" && isNaN(val) && val != "(") return;
 
     if (val == "(") {
       braceCnt++;
       if (prev == ")") expStack.push("*");
       if (isPrevNum) expStack.push("*");
+      ``;
       allowOnlyNumber = true;
     }
 
@@ -369,42 +372,84 @@ generalBtns.forEach((btn): void => {
           resetAll();
           expStack.push(Math.E);
           isPrevNum = true;
+          isFloat = true;
           break;
         case "SQ":
-          push("**");
-          push(2);
-          isPrevNum = true;
+          // push("**");
+          // push(2);
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.pow(current, 2));
+            isFloat = false;
+            isPrevNum = true;
+          }
           break;
         case "CUBE":
-          if (isPrevNum) expStack.push(Math.pow(expStack.pop(), 3));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.pow(current, 3));
+            isFloat = false;
+          }
           break;
         case "CBRT":
-          if (isPrevNum) expStack.push(Math.cbrt(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.cbrt(current));
+            isFloat = false;
+          }
           break;
         case "FACT":
-          if (isPrevNum) expStack.push(fact(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(fact(current));
+            isFloat = false;
+          }
           break;
         case "Y-SQRT-X":
         case "SQRT":
-          if (isPrevNum) expStack.push(Math.sqrt(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.sqrt(current));
+            isFloat = false;
+          }
           break;
         case "Y-BASE-X":
           if (isPrevNum) YbaseX();
           break;
         case "Y-BASE-E":
-          if (isPrevNum) expStack.push(Math.exp(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.exp(current));
+            isFloat = false;
+          }
           break;
         case "BASE10":
-          if (isPrevNum) expStack.push(10 ** expStack.pop());
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(10 ** current);
+            isFloat = false;
+          }
           break;
         case "BASE2":
-          if (isPrevNum) expStack.push(Math.pow(2, expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.pow(2, current));
+            isFloat = false;
+          }
           break;
         case "LOG":
-          if (isPrevNum) expStack.push(Math.log10(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.log10(current));
+            isFloat = false;
+          }
           break;
         case "LN":
-          if (isPrevNum) expStack.push(Math.log(expStack.pop()));
+          if (isPrevNum) {
+            let current: number = isFloat ? popFloat() : expStack.pop();
+            expStack.push(Math.log(current));
+            isFloat = false;
+          }
           break;
         case "NEGATE":
           if (isPrevNum) {
