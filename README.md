@@ -25,3 +25,4 @@ Start watch on TypeScript files
 ```bash
   tsc -w
 ```
+then, run the project in live server.
