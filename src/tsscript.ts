@@ -3,10 +3,14 @@ const __EQ_DISPLAY = document.getElementById(
   "equation-screen"
 ) as HTMLInputElement;
 
-let generalBtns = document.querySelectorAll(".gen-btn");
-let unitCtrlBtns = document.querySelectorAll(".unit-ctrl");
-let extraFuncsBtns = document.querySelectorAll(".extra-functions");
-let removeHistory = document.getElementById("removeHistory");
+let generalBtns = Array.from(
+  document.querySelectorAll(".gen-btn")
+) as HTMLButtonElement[];
+let unitCtrlBtns: NodeList = document.querySelectorAll(".unit-ctrl");
+let extraFuncsBtns: NodeList = document.querySelectorAll(".extra-functions");
+let removeHistory = document.getElementById(
+  "removeHistory"
+) as HTMLButtonElement;
 let clearMemory = document.getElementById("clearMemory");
 let frontBtns = document.querySelectorAll(".front");
 let backBtns = document.querySelectorAll(".back");
@@ -130,7 +134,6 @@ const push = (val: any): void => {
       braceCnt++;
       if (prev == ")") expStack.push("*");
       if (isPrevNum) expStack.push("*");
-      ``;
       allowOnlyNumber = true;
     }
 
@@ -168,30 +171,39 @@ const pop = (): void => {
   if (expStack.length == 0) expStack.push(0);
 };
 
-const reloadDisplay = (): void => {
-  __DISPLAY.value = expStack.join("");
+const reloadDisplay = (err: string = ""): void => {
+  if (err != "") __DISPLAY.value = err;
+  else __DISPLAY.value = expStack.join("");
 };
 
 const calculate = (): void => {
-  let TOP: any = expStack.at(-1);
-  while (isNaN(TOP) && TOP != ")") {
-    expStack.pop();
-    TOP = expStack.at(-1);
+  try {
+    let TOP: any = expStack.at(-1);
+    while (isNaN(TOP) && TOP != ")") {
+      expStack.pop();
+      TOP = expStack.at(-1);
+    }
+    const exp: string = expStack.join("");
+    let res: any = eval(exp);
+
+    if (Math.abs(res) == Infinity) {
+      reloadDisplay("Invalid Expression");
+    } else {
+      __DISPLAY.value = res.toString();
+      __EQ_DISPLAY.value = exp + "=";
+
+      isFloat = checkFloat(res);
+      res = isExp ? res.toExponential() : isFloat ? parseFloat(res) : res;
+
+      historyStack.push({ exp, res });
+      HistorySheet.appendHistory({ exp, res });
+
+      expStack = [res];
+      isPrevNum = true;
+    }
+  } catch (e) {
+    console.log(e);
   }
-  const exp: string = expStack.join("");
-  let res: any = eval(exp);
-
-  __DISPLAY.value = res.toString();
-  __EQ_DISPLAY.value = exp + "=";
-
-  isFloat = checkFloat(res);
-  res = isExp ? res.toExponential() : isFloat ? parseFloat(res) : res;
-
-  historyStack.push({ exp, res });
-  HistorySheet.appendHistory({ exp, res });
-
-  expStack = [res];
-  isPrevNum = true;
 };
 
 const resetAll = (error = null): void => {
@@ -344,6 +356,7 @@ generalBtns.forEach((btn): void => {
           return;
         case "PI":
           resetAll();
+          expStack = [];
           expStack.push(Math.PI);
           isPrevNum = true;
           break;
@@ -370,6 +383,7 @@ generalBtns.forEach((btn): void => {
           break;
         case "EULER":
           resetAll();
+          expStack = [];
           expStack.push(Math.E);
           isPrevNum = true;
           isFloat = true;
